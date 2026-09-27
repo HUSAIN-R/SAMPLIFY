@@ -370,7 +370,7 @@
 
     <div class="ar-controls">
       <button class="btn-native-ar" onclick="triggerNativeAR()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Place in Room (AR)
       </button>
       <span style="font-size:0.75rem; color:var(--text-muted);">True 1:1 scale on floor or window</span>
@@ -382,14 +382,13 @@
     // CLIENT CONFIGURATION
     // -------------------------------------------------------------
     const CONFIG = {
-      wholesalerPhone: "96569692799", // Wholesaler's Kuwait WhatsApp (965 + Number)
-      sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR8yTWkMPCD5eyfZNbxbs1wWtfA0EfCGpENfUPIbG8Ij7HMaI6TBtupKIRBaOg1D_oNxEOnNxCgb0ZP/pub?output=csv", // Paste published CSV here
+      wholesalerPhone: "96569692799",
+      sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR8yTWkMPCD5eyfZNbxbs1wWtfA0EfCGpENfUPIbG8Ij7HMaI6TBtupKIRBaOg1D_oNxEOnNxCgb0ZP/pub?output=csv",
       catalogName: "Milano Velvet 2026"
     };
 
     let fullDataset = [];
 
-    // Fallback Mock Data for instant visual testing before connecting Sheet
     const DEMO_DATA = [
       {
         ColorCode: "1540",
@@ -422,46 +421,36 @@
 
     async function initCatalog() {
       if (!CONFIG.sheetCsvUrl || CONFIG.sheetCsvUrl.includes("YOUR_GOOGLE_SHEET")) {
-        // Use demo items if no sheet link provided yet
         fullDataset = DEMO_DATA;
         drawCards(fullDataset);
         return;
       }
 
-      // Appends a unique timestamp so the browser never serves a cached copy
-const freshCsvUrl = CONFIG.sheetCsvUrl + (CONFIG.sheetCsvUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+      const freshCsvUrl = CONFIG.sheetCsvUrl + (CONFIG.sheetCsvUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
 
-Papa.parse(freshCsvUrl, {
-  download: true,
-  header: true,
-  complete: function(res) {
-    fullDataset = res.data.filter(r => r.ColorCode);
-    drawCards(fullDataset);
-  },
-  error: function() {
-    drawCards(DEMO_DATA);
-  }
-});
-
+      Papa.parse(freshCsvUrl, {
+        download: true,
+        header: true,
         complete: function(res) {
-          fullDataset = res.data.filter(r => r.ColorCode);
+          fullDataset = res.data.filter(r => r && r.ColorCode);
           drawCards(fullDataset);
         },
         error: function() {
-          drawCards(DEMO_DATA);
+          fullDataset = DEMO_DATA;
+          drawCards(fullDataset);
         }
       });
     }
 
     function drawCards(items) {
       const container = document.getElementById("catalog-grid");
-      if (items.length === 0) {
+      if (!items || items.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding:50px 0; color:var(--text-muted);">No matching colorways found.</div>`;
         return;
       }
 
       container.innerHTML = items.map(item => {
-        const stock = parseInt(item.StockMeters || "0");
+        const stock = parseInt(item.StockMeters || "0", 10);
         let badgeHtml = `<div class="badge badge-in"><span class="pulse"></span>${stock}m Available</div>`;
         if (stock <= 0) {
           badgeHtml = `<div class="badge badge-out"><span class="pulse"></span>Sold Out</div>`;
