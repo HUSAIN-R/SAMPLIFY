@@ -188,20 +188,29 @@
       50% { opacity: 0.5; }
     }
 
-    /* Main Container */
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px;
+    /* Hero Section */
+    .hero-banner {
       position: relative;
-      z-index: 10;
+      margin-bottom: 50px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(45, 157, 107, 0.05) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      animation: fadeIn 1s ease-out;
     }
 
-    /* Hero Section */
-    .hero {
-      text-align: center;
-      margin-bottom: 50px;
-      animation: fadeIn 1s ease-out;
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent);
+      pointer-events: none;
     }
 
     @keyframes fadeIn {
@@ -211,7 +220,7 @@
 
     .hero-title {
       font-family: 'Playfair Display', serif;
-      font-size: 3rem;
+      font-size: 3.2rem;
       font-weight: 900;
       margin-bottom: 12px;
       background: linear-gradient(135deg, var(--accent-gold-light) 0%, var(--accent-rose) 100%);
@@ -219,6 +228,8 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       letter-spacing: 1px;
+      position: relative;
+      z-index: 2;
     }
 
     .hero-subtitle {
@@ -227,6 +238,88 @@
       color: var(--text-secondary);
       font-weight: 400;
       letter-spacing: 1px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Category Tabs */
+    .category-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 40px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scroll-behavior: smooth;
+    }
+
+    .category-tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .category-tabs::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .category-tabs::-webkit-scrollbar-thumb {
+      background: var(--accent-gold);
+      border-radius: 10px;
+    }
+
+    .category-tab {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 25px;
+      background: var(--surface-med);
+      border: 1.5px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .category-tab:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    .category-tab.active {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+      color: #000;
+      border-color: var(--accent-gold);
+    }
+
+    /* Featured Section */
+    .featured-section {
+      margin-bottom: 50px;
+    }
+
+    .featured-header {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
     }
 
     /* Search & Filter */
@@ -278,27 +371,6 @@
       font-size: 1.2rem;
       opacity: 0.6;
       pointer-events: none;
-    }
-
-    /* Filter Button */
-    .filter-btn {
-      background: var(--surface-med);
-      border: 1.5px solid var(--border-subtle);
-      color: var(--text-secondary);
-      padding: 16px 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      letter-spacing: 0.5px;
-    }
-
-    .filter-btn:hover {
-      border-color: var(--accent-gold);
-      color: var(--accent-gold);
-      transform: translateY(-2px);
     }
 
     /* Grid Layout */
@@ -397,6 +469,16 @@
       flex: 1;
       position: relative;
       z-index: 2;
+    }
+
+    .card-catalog-num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
     }
 
     .card-header {
@@ -513,7 +595,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
       cursor: pointer;
       border: none;
       transition: all 0.3s ease;
@@ -531,6 +613,11 @@
     .btn-reserve:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
+    }
+
+    .btn-reserve svg {
+      width: 18px;
+      height: 18px;
     }
 
     .btn-3d {
@@ -551,6 +638,7 @@
       text-align: center;
       padding: 60px 20px;
       color: var(--text-muted);
+      grid-column: 1/-1;
     }
 
     .empty-state-icon {
@@ -670,6 +758,10 @@
         font-size: 2rem;
       }
 
+      .hero-banner {
+        padding: 40px 20px;
+      }
+
       .grid {
         grid-template-columns: 1fr;
       }
@@ -722,10 +814,15 @@
 
   <!-- Main Container -->
   <div class="container">
-    <!-- Hero Section -->
-    <div class="hero">
+    <!-- Hero Banner -->
+    <div class="hero-banner">
       <h1 class="hero-title">Curated Elegance</h1>
       <p class="hero-subtitle">Discover Premium Fabrics for Your Interior Vision</p>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs" id="category-tabs">
+      <div class="category-tab active" onclick="filterByCategory('All')">All Fabrics</div>
     </div>
 
     <!-- Search & Filter -->
@@ -734,6 +831,12 @@
         <span class="search-icon">🔍</span>
         <input type="text" id="search" class="search-input" placeholder="Search by color, code or category..." oninput="filterCatalog()" />
       </div>
+    </div>
+
+    <!-- Featured Section -->
+    <div class="featured-section" id="featured-section" style="display: none;">
+      <h2 class="featured-header">Featured Collection</h2>
+      <div class="featured-grid" id="featured-grid"></div>
     </div>
 
     <!-- Fabric Grid -->
@@ -804,10 +907,17 @@
     };
 
     let fullDataset = [];
+    let selectedCategory = 'All';
 
-    // Demo Data
+    // WhatsApp SVG Icon
+    const whatsappIcon = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.996 1.505c-1.547.921-2.996 2.286-4.122 3.96C2.604 13.312 2 15.547 2 17.753c0 2.117.469 4.173 1.423 6.039l-1.52 5.551 5.836-1.794c1.922 1.05 4.1 1.602 6.261 1.602 7.456 0 13.5-6.044 13.5-13.5 0-3.59-1.423-6.996-4.006-9.522S13.041 2 9.5 2c-2.16 0-4.34.552-6.262 1.602m8.962 17.354c-1.888 0-3.75-.505-5.404-1.458l-.387-.23-4.011 1.234 1.257-4.586-.297-.474a9.86 9.86 0 011.33-5.806c1.052-1.627 2.457-3.051 4.105-4.027 1.647-.975 3.505-1.49 5.407-1.49 6.235 0 11.285 5.05 11.285 11.286 0 3.02-1.19 5.853-3.355 7.998-2.165 2.145-5.020 3.33-8.023 3.33"/>
+    </svg>`;
+
+    // Demo data fallback
     const DEMO_DATA = [
       {
+        CatalogueNumber: "CV-001",
         ColorCode: "1540",
         ColorName: "Oatmeal Chenille",
         Category: "Curtain / Upholstery",
@@ -817,6 +927,7 @@
         Model3D: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/SheenChair/glTF-Binary/SheenChair.glb"
       },
       {
+        CatalogueNumber: "CV-002",
         ColorCode: "1541",
         ColorName: "Smoked Amber",
         Category: "Heavy Velvet",
@@ -826,6 +937,7 @@
         Model3D: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/SheenChair/glTF-Binary/SheenChair.glb"
       },
       {
+        CatalogueNumber: "CV-003",
         ColorCode: "1542",
         ColorName: "Aegean Slate",
         Category: "Textured Weave",
@@ -843,7 +955,7 @@
       if (typeof Papa === 'undefined') {
         console.error("PapaParse not loaded");
         fullDataset = DEMO_DATA;
-        drawCards(fullDataset);
+        renderCatalog(fullDataset);
         return;
       }
 
@@ -861,20 +973,71 @@
             fullDataset = DEMO_DATA;
           }
           
-          drawCards(fullDataset);
+          renderCatalog(fullDataset);
         },
         error: function(err) {
           console.error("CSV Error:", err);
           fullDataset = DEMO_DATA;
-          drawCards(fullDataset);
+          renderCatalog(fullDataset);
         }
       });
+    }
+
+    function renderCatalog(items) {
+      populateCategoryTabs(items);
+      drawCards(items);
+    }
+
+    function populateCategoryTabs(items) {
+      const categories = new Set(['All']);
+      items.forEach(item => {
+        if (item.Category) {
+          categories.add(item.Category);
+        }
+      });
+
+      const tabsContainer = document.getElementById("category-tabs");
+      tabsContainer.innerHTML = Array.from(categories)
+        .sort()
+        .map(cat => `
+          <div class="category-tab ${cat === 'All' ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</div>
+        `).join('');
+    }
+
+    function filterByCategory(category) {
+      selectedCategory = category;
+      
+      // Update active tab
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.textContent === category) {
+          tab.classList.add('active');
+        }
+      });
+
+      filterCatalog();
     }
 
     function drawCards(items) {
       const container = document.getElementById("catalog-grid");
       
-      if (!items || items.length === 0) {
+      let filtered = items;
+      if (selectedCategory !== 'All') {
+        filtered = items.filter(item => item.Category === selectedCategory);
+      }
+
+      const searchVal = document.getElementById("search").value.toLowerCase();
+      if (searchVal) {
+        filtered = filtered.filter(item => 
+          (item.ColorCode && item.ColorCode.toLowerCase().includes(searchVal)) ||
+          (item.ColorName && item.ColorName.toLowerCase().includes(searchVal)) ||
+          (item.Category && item.Category.toLowerCase().includes(searchVal)) ||
+          (item.Width && item.Width.toLowerCase().includes(searchVal)) ||
+          (item.CatalogueNumber && item.CatalogueNumber.toLowerCase().includes(searchVal))
+        );
+      }
+      
+      if (!filtered || filtered.length === 0) {
         container.innerHTML = `
           <div class="empty-state" style="grid-column: 1/-1;">
             <div class="empty-state-icon">✦</div>
@@ -884,7 +1047,7 @@
         return;
       }
 
-      container.innerHTML = items.map((item, idx) => {
+      container.innerHTML = filtered.map((item, idx) => {
         const stock = parseInt(item.StockMeters || "0", 10);
         
         let badgeHtml = '';
@@ -896,7 +1059,7 @@
           badgeHtml = `<div class="stock-badge badge-in"><span class="pulse-dot"></span>In Stock</div>`;
         }
 
-        const msg = `Hello, I'm interested in fabric #${item.ColorCode} "${item.ColorName}" from ${CONFIG.catalogName}. Please provide details and pricing.`;
+        const msg = `Hello, I'm interested in fabric #${item.ColorCode} "${item.ColorName}" (Catalogue: ${item.CatalogueNumber || 'N/A'}) from ${CONFIG.catalogName}. Please provide details and pricing.`;
         const waUrl = `https://wa.me/${CONFIG.wholesalerPhone}?text=${encodeURIComponent(msg)}`;
 
         const btn3d = item.Model3D ? `<button class="btn btn-3d" onclick="openAR('${item.Model3D}', '#${item.ColorCode}', '${item.ColorName}')">🎨 3D View</button>` : '';
@@ -908,6 +1071,7 @@
               <div class="image-overlay"></div>
             </div>
             <div class="card-content">
+              ${item.CatalogueNumber ? `<div class="card-catalog-num">Catalogue: ${item.CatalogueNumber}</div>` : ''}
               <div class="card-header">
                 <div class="color-code">#${item.ColorCode}</div>
                 ${badgeHtml}
@@ -920,7 +1084,7 @@
               </div>
               <div class="actions">
                 ${btn3d}
-                <a class="btn btn-reserve" href="${waUrl}" target="_blank">💎 Reserve</a>
+                <a class="btn btn-reserve" href="${waUrl}" target="_blank">${whatsappIcon} Reserve</a>
               </div>
             </div>
           </div>
@@ -930,13 +1094,7 @@
 
     function filterCatalog() {
       const val = document.getElementById("search").value.toLowerCase();
-      const filtered = fullDataset.filter(item => 
-        (item.ColorCode && item.ColorCode.toLowerCase().includes(val)) ||
-        (item.ColorName && item.ColorName.toLowerCase().includes(val)) ||
-        (item.Category && item.Category.toLowerCase().includes(val)) ||
-        (item.Width && item.Width.toLowerCase().includes(val))
-      );
-      drawCards(filtered);
+      drawCards(fullDataset);
     }
 
     function openAR(url, code, name) {
