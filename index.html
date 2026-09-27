@@ -2,108 +2,485 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fabric Catalog & Stock Tracker</title>
-  <!-- Google Model Viewer (Official WebAR script) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Maison Textiles | Live Swatch Deck & AR</title>
+  
+  <!-- Google Fonts: Syne (Edgy luxury headers) + Plus Jakarta Sans (Crisp interface) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- Google Model Viewer (WebXR AR Engine) & PapaParse (CSV Reader) -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { margin: 0; background: #f8fafc; color: #1e293b; padding-bottom: 40px; }
-    header { background: #0f172a; color: white; padding: 18px 20px; text-align: center; }
-    header h1 { margin: 0; font-size: 1.15rem; letter-spacing: 0.5px; }
-    header p { margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8; }
-    .container { max-width: 650px; margin: 0 auto; padding: 16px; }
-    .search-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; margin-bottom: 16px; }
-    
-    .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; gap: 14px; align-items: center; }
-    .card img { width: 85px; height: 85px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
-    .card-info { flex: 1; }
-    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
-    .badge-in { background: #dcfce7; color: #15803d; }
-    .badge-low { background: #fef9c3; color: #a16207; }
-    .badge-out { background: #fee2e2; color: #b91c1c; }
-    
-    .btn-wa { display: inline-block; background: #25D366; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; margin-top: 8px; }
-    .btn-ar { background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-top: 8px; margin-right: 6px; }
 
-    /* 3D / AR Modal Overlay */
-    #ar-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-    model-viewer { width: 90vw; height: 70vh; max-width: 500px; background: #ffffff; border-radius: 12px; }
-    .close-btn { position: absolute; top: 20px; right: 20px; background: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+  <style>
+    :root {
+      --bg: #090a0f;
+      --surface: rgba(22, 24, 34, 0.75);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --accent-gold: #e2b769;
+      --accent-emerald: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #8e95a5;
+      --blur: blur(16px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 90px;
+    }
+
+    /* Ambient Lighting Glows */
+    .glow-top {
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(226, 183, 105, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      background: rgba(9, 10, 15, 0.85);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 16px 20px;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ffffff, var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .collection-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      border: 1px solid rgba(226, 183, 105, 0.3);
+      padding: 4px 8px;
+      border-radius: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Search & Filter Bar */
+    .control-panel {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 14px;
+      padding: 14px 16px 14px 44px;
+      color: white;
+      font-size: 0.95rem;
+      backdrop-filter: var(--blur);
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 15px rgba(226, 183, 105, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.4;
+      font-size: 0.9rem;
+    }
+
+    /* Fabric Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    /* Swatch Card */
+    .fabric-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      gap: 16px;
+      position: relative;
+      backdrop-filter: var(--blur);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fabric-card:active {
+      transform: scale(0.985);
+    }
+
+    .thumb-wrapper {
+      position: relative;
+      width: 105px;
+      height: 105px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .thumb-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .color-code {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .fabric-specs {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Dynamic Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-in { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .badge-low { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .badge-out { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+    .pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Action Buttons */
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-reserve {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-3d {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--surface-border);
+    }
+
+    .btn-3d:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Fullscreen AR Studio Modal */
+    #ar-stage {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 6, 8, 0.95);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      z-index: 100;
+      flex-direction: column;
+    }
+
+    .stage-header {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 65vh;
+      --poster-color: transparent;
+    }
+
+    .ar-controls {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-native-ar {
+      width: 100%;
+      max-width: 320px;
+      background: var(--accent-gold);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(226, 183, 105, 0.3);
+      cursor: pointer;
+    }
+
+    .close-stage {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--surface-border);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
 
+  <div class="glow-top"></div>
+
   <header>
-    <h1 id="brand-title">TEXTILE COLLECTION 2026</h1>
-    <p>Live Inventory & 3D AR Visualizer</p>
+    <div class="brand-title">VELVET ROYALE</div>
+    <div class="collection-tag">VOL. IV</div>
   </header>
 
   <div class="container">
-    <input type="text" id="search" class="search-box" placeholder="Search Color Code (e.g. 1540)..." oninput="filterList()" />
-    <div id="swatch-list">Loading catalog inventory...</div>
+    <div class="control-panel">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search" class="search-input" placeholder="Search Shade, Code or Spec..." oninput="filterCatalog()" />
+    </div>
+
+    <div class="grid" id="catalog-grid">
+      <!-- Fallback Skeleton while loading -->
+      <div style="text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 0.9rem;">
+        Syncing inventory from central warehouse...
+      </div>
+    </div>
   </div>
 
-  <!-- AR Visualizer Popup -->
-  <div id="ar-modal">
-    <button class="close-btn" onclick="closeAR()">✕ Close</button>
-    <model-viewer id="viewer" src="" ar ar-modes="webxr scene-viewer quick-look" camera-controls auto-rotate shadow-intensity="1">
-      <button slot="ar-button" style="background:#2563eb; color:white; border-radius:8px; border:none; position:absolute; bottom:16px; left:50%; transform:translateX(-50%); padding:10px 18px; font-weight:bold;">
-        📱 View in Your Room
-      </button>
+  <!-- AR Visualizer Modal -->
+  <div id="ar-stage">
+    <div class="stage-header">
+      <div>
+        <h3 id="stage-title" style="font-family: 'Syne'; font-size: 1.1rem;">3D Drapery Studio</h3>
+        <p style="font-size: 0.75rem; color: var(--text-muted);">Real-time scale preview</p>
+      </div>
+      <button class="close-stage" onclick="dismissAR()">✕</button>
+    </div>
+
+    <model-viewer 
+      id="main-viewer" 
+      src="" 
+      ar 
+      ar-modes="webxr scene-viewer quick-look" 
+      camera-controls 
+      touch-action="pan-y" 
+      auto-rotate 
+      shadow-intensity="1.5" 
+      exposure="1.2">
+      <button slot="ar-button" style="display:none;"></button>
     </model-viewer>
+
+    <div class="ar-controls">
+      <button class="btn-native-ar" onclick="triggerNativeAR()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+        Place in Room (AR)
+      </button>
+      <span style="font-size:0.75rem; color:var(--text-muted);">True 1:1 scale on floor or window</span>
+    </div>
   </div>
 
   <script>
-    // 1. CONFIGURATION:
-    const WHOLESALER_WA_NUMBER = "965XXXXXXXX"; // Wholesaler's Kuwait WhatsApp number
-    const SHEET_CSV_URL = "YOUR_GOOGLE_SHEET_CSV_URL_HERE"; // From Step 1
-    
-    let catalogData = [];
+    // -------------------------------------------------------------
+    // CLIENT CONFIGURATION
+    // -------------------------------------------------------------
+    const CONFIG = {
+      wholesalerPhone: "96569692799", // Wholesaler's Kuwait WhatsApp (965 + Number)
+      sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR8yTWkMPCD5eyfZNbxbs1wWtfA0EfCGpENfUPIbG8Ij7HMaI6TBtupKIRBaOg1D_oNxEOnNxCgb0ZP/pub?output=csv", // Paste published CSV here
+      catalogName: "Milano Velvet 2026"
+    };
 
-    // 2. FETCH REAL-TIME STOCK FROM GOOGLE SHEETS
-    async function loadData() {
-      Papa.parse(SHEET_CSV_URL, {
+    let fullDataset = [];
+
+    // Fallback Mock Data for instant visual testing before connecting Sheet
+    const DEMO_DATA = [
+      {
+        ColorCode: "1540",
+        ColorName: "Oatmeal Chenille",
+        Category: "Curtain / Upholstery",
+        Width: "142 cm",
+        StockMeters: "185",
+        ImageURL: "https://images.unsplash.com/photo-1584589167171-541ce45f1eea?auto=format&fit=crop&w=400&q=80",
+        Model3D: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/SheenChair/glTF-Binary/SheenChair.glb"
+      },
+      {
+        ColorCode: "1541",
+        ColorName: "Smoked Amber",
+        Category: "Heavy Velvet",
+        Width: "145 cm",
+        StockMeters: "24",
+        ImageURL: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=400&q=80",
+        Model3D: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/SheenChair/glTF-Binary/SheenChair.glb"
+      },
+      {
+        ColorCode: "1542",
+        ColorName: "Aegean Slate",
+        Category: "Textured Weave",
+        Width: "140 cm",
+        StockMeters: "0",
+        ImageURL: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=400&q=80",
+        Model3D: ""
+      }
+    ];
+
+    async function initCatalog() {
+      if (!CONFIG.sheetCsvUrl || CONFIG.sheetCsvUrl.includes("YOUR_GOOGLE_SHEET")) {
+        // Use demo items if no sheet link provided yet
+        fullDataset = DEMO_DATA;
+        drawCards(fullDataset);
+        return;
+      }
+
+      Papa.parse(CONFIG.sheetCsvUrl, {
         download: true,
         header: true,
-        complete: function(results) {
-          catalogData = results.data.filter(row => row.ColorCode);
-          renderList(catalogData);
+        complete: function(res) {
+          fullDataset = res.data.filter(r => r.ColorCode);
+          drawCards(fullDataset);
+        },
+        error: function() {
+          drawCards(DEMO_DATA);
         }
       });
     }
 
-    // 3. RENDER THE INTERACTIVE LIST
-    function renderList(items) {
-      const container = document.getElementById("swatch-list");
+    function drawCards(items) {
+      const container = document.getElementById("catalog-grid");
       if (items.length === 0) {
-        container.innerHTML = "<p>No matching shades found.</p>";
+        container.innerHTML = `<div style="text-align:center; padding:50px 0; color:var(--text-muted);">No matching colorways found.</div>`;
         return;
       }
+
       container.innerHTML = items.map(item => {
         const stock = parseInt(item.StockMeters || "0");
-        let badge = `<span class="badge badge-in">● ${stock}m Available</span>`;
-        if (stock <= 0) badge = `<span class="badge badge-out">✕ Out of Stock</span>`;
-        else if (stock < 30) badge = `<span class="badge badge-low">● Low Stock: ${stock}m</span>`;
+        let badgeHtml = `<div class="badge badge-in"><span class="pulse"></span>${stock}m Available</div>`;
+        if (stock <= 0) {
+          badgeHtml = `<div class="badge badge-out"><span class="pulse"></span>Sold Out</div>`;
+        } else if (stock < 30) {
+          badgeHtml = `<div class="badge badge-low"><span class="pulse"></span>Low: ${stock}m Left</div>`;
+        }
 
-        const waText = encodeURIComponent(`Hello, I saw Color #${item.ColorCode} (${item.ColorName}) in your physical catalog. I would like to reserve 20 meters.`);
-        const waLink = `https://wa.me/${WHOLESALER_WA_NUMBER}?text=${waText}`;
+        const encodedMsg = encodeURIComponent(
+          `Salam, reserving from physical catalog [${CONFIG.catalogName}]:\n` +
+          `• Color Code: #${item.ColorCode} (${item.ColorName || 'Standard'})\n` +
+          `• Required Length: 25 Meters\n` +
+          `Please confirm availability & delivery timeline.`
+        );
+        const waUrl = `https://wa.me/${CONFIG.wholesalerPhone}?text=${encodedMsg}`;
 
         return `
-          <div class="card">
-            <img src="${item.ImageURL || 'https://via.placeholder.com/85'}" alt="Swatch" />
-            <div class="card-info">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <div>
-                  <strong style="font-size:1.05rem;">Code: #${item.ColorCode}</strong>
-                  <div style="font-size:0.8rem; color:#64748b;">${item.ColorName || ''} | ${item.Width || '142 cm'}</div>
+          <div class="fabric-card">
+            <div class="thumb-wrapper">
+              <img src="${item.ImageURL || 'https://via.placeholder.com/200'}" alt="Color #${item.ColorCode}" loading="lazy" />
+            </div>
+            <div class="card-content">
+              <div>
+                <div class="card-top">
+                  <span class="color-code">#${item.ColorCode}</span>
+                  ${badgeHtml}
                 </div>
-                ${badge}
+                <div class="fabric-specs">${item.ColorName || 'Solid'} • ${item.Width || '142cm'} • ${item.Category || 'Fabric'}</div>
               </div>
-              <div style="margin-top:10px;">
-                ${item.Model3D ? `<button class="btn-ar" onclick="launchAR('${item.Model3D}')">👁️ View 3D / AR</button>` : ''}
-                <a class="btn-wa" href="${waLink}" target="_blank">💬 Reserve</a>
+              <div class="actions">
+                ${item.Model3D ? `<button class="btn btn-3d" onclick="openAR('${item.Model3D}', '#${item.ColorCode} -${item.ColorName}')">3D Room</button>` : ''}
+                <a class="btn btn-reserve" href="${waUrl}" target="_blank">Reserve</a>
               </div>
             </div>
           </div>
@@ -111,25 +488,43 @@
       }).join('');
     }
 
-    function filterList() {
-      const q = document.getElementById("search").value.toLowerCase();
-      const filtered = catalogData.filter(i => (i.ColorCode && i.ColorCode.toLowerCase().includes(q)) || (i.ColorName && i.ColorName.toLowerCase().includes(q)));
-      renderList(filtered);
+    function filterCatalog() {
+      const val = document.getElementById("search").value.toLowerCase();
+      const hits = fullDataset.filter(item => 
+        (item.ColorCode && item.ColorCode.toLowerCase().includes(val)) ||
+        (item.ColorName && item.ColorName.toLowerCase().includes(val)) ||
+        (item.Category && item.Category.toLowerCase().includes(val))
+      );
+      drawCards(hits);
     }
 
-    function launchAR(modelUrl) {
-      const modal = document.getElementById("ar-modal");
-      const viewer = document.getElementById("viewer");
+    function openAR(modelUrl, title) {
+      const modal = document.getElementById("ar-stage");
+      const viewer = document.getElementById("main-viewer");
+      document.getElementById("stage-title").innerText = title;
       viewer.src = modelUrl;
       modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
     }
 
-    function closeAR() {
-      document.getElementById("ar-modal").style.display = "none";
-      document.getElementById("viewer").src = "";
+    function triggerNativeAR() {
+      const viewer = document.getElementById("main-viewer");
+      if (viewer.canActivateAR) {
+        viewer.activateAR();
+      } else {
+        alert("AR is supported on Safari (iOS 12+) and Chrome (Android with ARCore).");
+      }
     }
 
-    window.onload = loadData;
+    function dismissAR() {
+      const modal = document.getElementById("ar-stage");
+      const viewer = document.getElementById("main-viewer");
+      modal.style.display = "none";
+      viewer.src = "";
+      document.body.style.overflow = "auto";
+    }
+
+    window.addEventListener("DOMContentLoaded", initCatalog);
   </script>
 </body>
 </html>
