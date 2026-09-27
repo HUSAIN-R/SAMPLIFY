@@ -1,112 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SAMPLIFY</title>
-    <style>
-      :root {
-        --bg: #0b1020;
-        --panel: #121a2b;
-        --primary: #7c9cff;
-        --accent: #38d39f;
-        --text: #e5ecff;
-        --muted: #a6b6d9;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fabric Catalog & Stock Tracker</title>
+  <!-- Google Model Viewer (Official WebAR script) -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; background: #f8fafc; color: #1e293b; padding-bottom: 40px; }
+    header { background: #0f172a; color: white; padding: 18px 20px; text-align: center; }
+    header h1 { margin: 0; font-size: 1.15rem; letter-spacing: 0.5px; }
+    header p { margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8; }
+    .container { max-width: 650px; margin: 0 auto; padding: 16px; }
+    .search-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; margin-bottom: 16px; }
+    
+    .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; gap: 14px; align-items: center; }
+    .card img { width: 85px; height: 85px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .card-info { flex: 1; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
+    .badge-in { background: #dcfce7; color: #15803d; }
+    .badge-low { background: #fef9c3; color: #a16207; }
+    .badge-out { background: #fee2e2; color: #b91c1c; }
+    
+    .btn-wa { display: inline-block; background: #25D366; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: bold; margin-top: 8px; }
+    .btn-ar { background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; margin-top: 8px; margin-right: 6px; }
 
-      * { box-sizing: border-box; }
+    /* 3D / AR Modal Overlay */
+    #ar-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+    model-viewer { width: 90vw; height: 70vh; max-width: 500px; background: #ffffff; border-radius: 12px; }
+    .close-btn { position: absolute; top: 20px; right: 20px; background: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
 
-      body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: linear-gradient(135deg, var(--bg), #101827);
-        color: var(--text);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-      }
+  <header>
+    <h1 id="brand-title">TEXTILE COLLECTION 2026</h1>
+    <p>Live Inventory & 3D AR Visualizer</p>
+  </header>
 
-      .container {
-        max-width: 900px;
-        width: 100%;
-        background: rgba(18, 26, 43, 0.9);
-        border: 1px solid rgba(124, 156, 255, 0.25);
-        border-radius: 18px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-        padding: 48px 32px;
-      }
+  <div class="container">
+    <input type="text" id="search" class="search-box" placeholder="Search Color Code (e.g. 1540)..." oninput="filterList()" />
+    <div id="swatch-list">Loading catalog inventory...</div>
+  </div>
 
-      .badge {
-        display: inline-block;
-        background: rgba(124, 156, 255, 0.12);
-        color: var(--primary);
-        border: 1px solid rgba(124, 156, 255, 0.3);
-        border-radius: 999px;
-        padding: 8px 16px;
-        font-size: 12px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-bottom: 18px;
-      }
+  <!-- AR Visualizer Popup -->
+  <div id="ar-modal">
+    <button class="close-btn" onclick="closeAR()">✕ Close</button>
+    <model-viewer id="viewer" src="" ar ar-modes="webxr scene-viewer quick-look" camera-controls auto-rotate shadow-intensity="1">
+      <button slot="ar-button" style="background:#2563eb; color:white; border-radius:8px; border:none; position:absolute; bottom:16px; left:50%; transform:translateX(-50%); padding:10px 18px; font-weight:bold;">
+        📱 View in Your Room
+      </button>
+    </model-viewer>
+  </div>
 
-      h1 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
-        margin: 0 0 16px;
-      }
+  <script>
+    // 1. CONFIGURATION:
+    const WHOLESALER_WA_NUMBER = "965XXXXXXXX"; // Wholesaler's Kuwait WhatsApp number
+    const SHEET_CSV_URL = "YOUR_GOOGLE_SHEET_CSV_URL_HERE"; // From Step 1
+    
+    let catalogData = [];
 
-      p {
-        color: var(--muted);
-        font-size: 1.08rem;
-        line-height: 1.7;
-        margin: 0 0 28px;
-      }
+    // 2. FETCH REAL-TIME STOCK FROM GOOGLE SHEETS
+    async function loadData() {
+      Papa.parse(SHEET_CSV_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          catalogData = results.data.filter(row => row.ColorCode);
+          renderList(catalogData);
+        }
+      });
+    }
 
-      .cta-row {
-        display: flex;
-        gap: 14px;
-        flex-wrap: wrap;
+    // 3. RENDER THE INTERACTIVE LIST
+    function renderList(items) {
+      const container = document.getElementById("swatch-list");
+      if (items.length === 0) {
+        container.innerHTML = "<p>No matching shades found.</p>";
+        return;
       }
+      container.innerHTML = items.map(item => {
+        const stock = parseInt(item.StockMeters || "0");
+        let badge = `<span class="badge badge-in">● ${stock}m Available</span>`;
+        if (stock <= 0) badge = `<span class="badge badge-out">✕ Out of Stock</span>`;
+        else if (stock < 30) badge = `<span class="badge badge-low">● Low Stock: ${stock}m</span>`;
 
-      .btn {
-        display: inline-block;
-        text-decoration: none;
-        padding: 14px 22px;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: transform 0.2s ease, opacity 0.2s ease;
-      }
+        const waText = encodeURIComponent(`Hello, I saw Color #${item.ColorCode} (${item.ColorName}) in your physical catalog. I would like to reserve 20 meters.`);
+        const waLink = `https://wa.me/${WHOLESALER_WA_NUMBER}?text=${waText}`;
 
-      .btn:hover {
-        transform: translateY(-2px);
-      }
+        return `
+          <div class="card">
+            <img src="${item.ImageURL || 'https://via.placeholder.com/85'}" alt="Swatch" />
+            <div class="card-info">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <strong style="font-size:1.05rem;">Code: #${item.ColorCode}</strong>
+                  <div style="font-size:0.8rem; color:#64748b;">${item.ColorName || ''} | ${item.Width || '142 cm'}</div>
+                </div>
+                ${badge}
+              </div>
+              <div style="margin-top:10px;">
+                ${item.Model3D ? `<button class="btn-ar" onclick="launchAR('${item.Model3D}')">👁️ View 3D / AR</button>` : ''}
+                <a class="btn-wa" href="${waLink}" target="_blank">💬 Reserve</a>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-      .btn-primary {
-        background: linear-gradient(135deg, var(--primary), #5b73f5);
-        color: white;
-      }
+    function filterList() {
+      const q = document.getElementById("search").value.toLowerCase();
+      const filtered = catalogData.filter(i => (i.ColorCode && i.ColorCode.toLowerCase().includes(q)) || (i.ColorName && i.ColorName.toLowerCase().includes(q)));
+      renderList(filtered);
+    }
 
-      .btn-secondary {
-        background: rgba(56, 211, 159, 0.12);
-        color: var(--accent);
-        border: 1px solid rgba(56, 211, 159, 0.35);
-      }
-    </style>
-  </head>
-  <body>
-    <main class="container">
-      <div class="badge">SAMPLIFY</div>
-      <h1>Revolutionizing the Fabric Industry</h1>
-      <p>
-        SAMPLIFY brings innovative digital solutions to the textile world—combining
-        smarter workflows, data-driven insights, and modern experiences for a more
-        efficient future in fabric production and commerce.
-      </p>
-      <div class="cta-row">
-        <a href="#" class="btn btn-primary">Get Started</a>
-        <a href="#" class="btn btn-secondary">Learn More</a>
-      </div>
-    </main>
-  </body>
+    function launchAR(modelUrl) {
+      const modal = document.getElementById("ar-modal");
+      const viewer = document.getElementById("viewer");
+      viewer.src = modelUrl;
+      modal.style.display = "flex";
+    }
+
+    function closeAR() {
+      document.getElementById("ar-modal").style.display = "none";
+      document.getElementById("viewer").src = "";
+    }
+
+    window.onload = loadData;
+  </script>
+</body>
 </html>
