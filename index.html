@@ -73,13 +73,24 @@
       border: 1.5px solid var(--border-accent); padding: 6px 12px; border-radius: 25px; text-transform: uppercase;
     }
     .header-right { display: flex; align-items: center; gap: 12px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; color: var(--text-secondary); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald); animation: pulse-dot 2.2s ease-in-out infinite; }
-    .lang-toggle {
-      border: 1px solid var(--border-accent); background: rgba(255,255,255,0.04); color: var(--text-primary);
-      padding: 8px 10px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 1px; font-weight: 700;
-      font-family: 'Montserrat', sans-serif; text-transform: uppercase; cursor: pointer; transition: all 0.25s ease;
+    .locale-switcher {
+      display: inline-flex; align-items: center; gap: 0;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border-accent);
+      border-radius: 999px; padding: 4px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
     }
-    .lang-toggle:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+    .locale-btn {
+      border: none; background: transparent; color: var(--text-secondary); font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 8px 12px; border-radius: 999px; cursor: pointer; transition: all 0.25s ease;
+    }
+    .locale-btn.active {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+      color: #111; box-shadow: 0 8px 18px rgba(212,175,55,0.2);
+    }
+    .locale-divider {
+      color: var(--text-muted); font-weight: 700; opacity: 0.8; user-select: none;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald); animation: pulse-dot 2.2s ease-in-out infinite; }
     @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.45;} }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 28px 20px 0; position: relative; z-index: 10; }
@@ -163,6 +174,8 @@
     .search-input::placeholder { color: var(--text-muted); }
     .search-input:focus { border-color: var(--accent-gold); background: rgba(255,255,255,0.06); box-shadow: 0 0 30px rgba(212,175,55,0.14); transform: translateY(-1px); }
     .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); pointer-events: none; opacity: 0.7; font-size: 1.2rem; }
+    html[dir="rtl"] .search-icon { left: auto; right: 18px; }
+    html[dir="rtl"] .search-input { padding: 16px 52px 16px 18px; }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
     @keyframes staggerIn { from { opacity:0; transform:translateY(25px); } to { opacity:1; transform:translateY(0); } }
@@ -199,6 +212,9 @@
     .specs-item { display: inline-block; margin-right: 10px; }
     .specs-item::before { content: '•'; margin-right: 8px; color: var(--accent-gold); }
     .specs-item:first-child::before { content: ''; margin-right: 0; }
+    html[dir="rtl"] .specs-item { margin-right: 0; margin-left: 10px; }
+    html[dir="rtl"] .specs-item::before { content: ''; margin-right: 0; }
+    html[dir="rtl"] .specs-item:first-child::before { content: '•'; margin-right: 0; margin-left: 8px; }
 
     .actions { display: flex; gap: 10px; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
     .btn {
@@ -239,6 +255,7 @@
       .header-content { flex-wrap: wrap; }
       .brand-title { font-size: 1.4rem; }
       .grid { grid-template-columns: 1fr; }
+      .header-right { width: 100%; justify-content: flex-end; }
     }
 
     html { scroll-behavior: smooth; }
@@ -258,7 +275,11 @@
         <div class="collection-badge" data-i18n="collectionBadge">TEXTILE COLLECTION</div>
       </div>
       <div class="header-right">
-        <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to Arabic">AR</button>
+        <div class="locale-switcher" aria-label="Language selector">
+          <button class="locale-btn active" type="button" data-lang="en">EN</button>
+          <span class="locale-divider">|</span>
+          <button class="locale-btn" type="button" data-lang="ar">AR</button>
+        </div>
         <div class="status-dot"></div>
         <span data-i18n="liveCatalog">Live Catalog</span>
       </div>
@@ -382,33 +403,31 @@
         soldOut: 'Sold Out',
         reserve: 'Reserve',
         threeDView: '3D View',
-        noItems: 'No items found. Please refine your search.',
-        toggleLang: 'AR',
-        toggleLangAria: 'Switch to Arabic',
+        noItems: 'No items found. Please refine your search.'
       },
       ar: {
         brandName: 'زمان',
         collectionBadge: 'مجموعة النسيج',
-        liveCatalog: 'الكatalog المباشر',
+        liveCatalog: 'الكاتالوج المباشر',
         heroTitle: 'أناقة مختارة',
-        heroSubtitle: 'اكتشف أقمشة فاخرة مصممة للداخلية العصرية والمساحات المميزة.',
+        heroSubtitle: 'اكتشف أقمشة فاخرة مصممة للفراغات الداخلية الراقية والمميزة.',
         browseCollection: 'تصفح المجموعة',
         exploreCategories: 'استكشف الفئات',
         stylesLabel: 'الأنماط',
         responseLabel: 'الاستجابة',
         previewLabel: 'المعاينة',
         luxuryFinish: 'تشطيب فاخر',
-        luxuryFinishText: 'مجموعات ذات ملمس وارتفاع',
+        luxuryFinishText: 'مجموعات ذات ملمس راقٍ ودرجة عالية من التميز',
         readyStock: 'مخزون جاهز',
         readyStockText: 'تحديثات فورية عن التوفر',
-        arPreview: 'عرض AR',
+        arPreview: 'معاينة الواقع المعزز',
         arPreviewText: 'شاهد القماش في مساحتك',
-        allFabrics: 'كل الأقمشة',
+        allFabrics: 'جميع الأقمشة',
         searchPlaceholder: 'ابحث حسب الكتالوج أو الرمز أو اللون أو الفئة...',
-        featuredCollection: 'المجموعة المختارة',
+        featuredCollection: 'المجموعة المميزة',
         loadingMessage: 'جارٍ تحميل المجموعة المميزة...',
         arPreviewTitle: 'معاينة ثلاثية الأبعاد',
-        arPreviewSubtitle: 'تخيلها في مساحتك',
+        arPreviewSubtitle: 'تخيل القماش في مساحتك',
         placeInRoom: 'ضعها في الغرفة',
         trueScale: 'معاينة بالحجم الحقيقي',
         inStock: 'متوفر',
@@ -416,9 +435,7 @@
         soldOut: 'غير متوفر',
         reserve: 'احجز',
         threeDView: 'عرض 3D',
-        noItems: 'لم يتم العثور على عناصر. يرجى تعديل البحث.',
-        toggleLang: 'EN',
-        toggleLangAria: 'التبديل إلى الإنجليزية',
+        noItems: 'لم يتم العثور على عناصر. يُرجى تعديل البحث.'
       }
     };
 
@@ -432,6 +449,7 @@
       currentLang = lang;
       document.documentElement.lang = lang;
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
       document.querySelectorAll('[data-i18n]').forEach((element) => {
         const key = element.dataset.i18n;
         const value = translations[lang]?.[key] || translations.en[key];
@@ -443,11 +461,9 @@
         }
       });
 
-      const toggleButton = document.getElementById('lang-toggle');
-      if (toggleButton) {
-        toggleButton.textContent = getText('toggleLang');
-        toggleButton.setAttribute('aria-label', getText('toggleLangAria'));
-      }
+      document.querySelectorAll('.locale-btn').forEach((button) => {
+        button.classList.toggle('active', button.dataset.lang === lang);
+      });
 
       const searchInput = document.getElementById('search');
       if (searchInput) {
@@ -459,8 +475,8 @@
       }
     }
 
-    function toggleLanguage() {
-      setLanguage(currentLang === 'en' ? 'ar' : 'en');
+    function pickLanguage(lang) {
+      setLanguage(lang);
     }
 
     if ('caches' in window) {
@@ -656,7 +672,9 @@
       document.body.style.overflow = 'auto';
     }
 
-    document.getElementById('lang-toggle')?.addEventListener('click', toggleLanguage);
+    document.querySelectorAll('.locale-btn').forEach((button) => {
+      button.addEventListener('click', () => pickLanguage(button.dataset.lang));
+    });
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => {
       setLanguage(currentLang);
