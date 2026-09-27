@@ -74,6 +74,12 @@
     }
     .header-right { display: flex; align-items: center; gap: 12px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; color: var(--text-secondary); }
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-emerald); animation: pulse-dot 2.2s ease-in-out infinite; }
+    .lang-toggle {
+      border: 1px solid var(--border-accent); background: rgba(255,255,255,0.04); color: var(--text-primary);
+      padding: 8px 10px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 1px; font-weight: 700;
+      font-family: 'Montserrat', sans-serif; text-transform: uppercase; cursor: pointer; transition: all 0.25s ease;
+    }
+    .lang-toggle:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
     @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.45;} }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 28px 20px 0; position: relative; z-index: 10; }
@@ -248,12 +254,13 @@
   <header>
     <div class="header-content">
       <div class="brand-section">
-        <div class="brand-title">ZAMAAN</div>
-        <div class="collection-badge">TEXTILE COLLECTION</div>
+        <div class="brand-title" data-i18n="brandName">ZAMAAN</div>
+        <div class="collection-badge" data-i18n="collectionBadge">TEXTILE COLLECTION</div>
       </div>
       <div class="header-right">
+        <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to Arabic">AR</button>
         <div class="status-dot"></div>
-        <span>Live Catalog</span>
+        <span data-i18n="liveCatalog">Live Catalog</span>
       </div>
     </div>
   </header>
@@ -262,26 +269,26 @@
     <div class="hero-banner">
       <div class="hero-content">
         <div>
-          <h1 class="hero-title">Curated Elegance</h1>
-          <p class="hero-subtitle">Discover premium fabrics designed for refined interiors and statement spaces.</p>
+          <h1 class="hero-title" data-i18n="heroTitle">Curated Elegance</h1>
+          <p class="hero-subtitle" data-i18n="heroSubtitle">Discover premium fabrics designed for refined interiors and statement spaces.</p>
           <div class="hero-actions">
-            <button class="action-btn action-primary" onclick="document.getElementById('catalog-grid').scrollIntoView({behavior:'smooth'})">Browse Collection</button>
-            <button class="action-btn action-secondary" onclick="document.getElementById('category-tabs').scrollIntoView({behavior:'smooth'})">Explore Categories</button>
+            <button class="action-btn action-primary" data-i18n="browseCollection">Browse Collection</button>
+            <button class="action-btn action-secondary" data-i18n="exploreCategories">Explore Categories</button>
           </div>
         </div>
 
         <div class="hero-stats">
           <div class="stat-pill">
             <div class="stat-value">120+</div>
-            <div class="stat-label">Styles</div>
+            <div class="stat-label" data-i18n="stylesLabel">Styles</div>
           </div>
           <div class="stat-pill">
             <div class="stat-value">24h</div>
-            <div class="stat-label">Response</div>
+            <div class="stat-label" data-i18n="responseLabel">Response</div>
           </div>
           <div class="stat-pill">
             <div class="stat-value">AR</div>
-            <div class="stat-label">Preview</div>
+            <div class="stat-label" data-i18n="previewLabel">Preview</div>
           </div>
         </div>
       </div>
@@ -290,38 +297,38 @@
     <div class="feature-strip">
       <div class="feature-box">
         <div class="feature-icon">✦</div>
-        <div class="feature-copy"><strong>Luxury Finish</strong><span>Textured, elevated collections</span></div>
+        <div class="feature-copy"><strong data-i18n="luxuryFinish">Luxury Finish</strong><span data-i18n="luxuryFinishText">Textured, elevated collections</span></div>
       </div>
       <div class="feature-box">
         <div class="feature-icon">✓</div>
-        <div class="feature-copy"><strong>Ready Stock</strong><span>Instant availability updates</span></div>
+        <div class="feature-copy"><strong data-i18n="readyStock">Ready Stock</strong><span data-i18n="readyStockText">Instant availability updates</span></div>
       </div>
       <div class="feature-box">
         <div class="feature-icon">◌</div>
-        <div class="feature-copy"><strong>AR Preview</strong><span>See fabric in your space</span></div>
+        <div class="feature-copy"><strong data-i18n="arPreview">AR Preview</strong><span data-i18n="arPreviewText">See fabric in your space</span></div>
       </div>
     </div>
 
     <div class="category-tabs" id="category-tabs">
-      <div class="category-tab active" onclick="filterByCategory('All')">All Fabrics</div>
+      <div class="category-tab active" data-i18n="allFabrics" onclick="filterByCategory('All')">All Fabrics</div>
     </div>
 
     <div class="control-panel">
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search" class="search-input" placeholder="Search by catalogue, code, colour or category..." oninput="filterCatalog()" />
+        <input type="text" id="search" class="search-input" data-i18n="searchPlaceholder" placeholder="Search by catalogue, code, colour or category..." oninput="filterCatalog()" />
       </div>
     </div>
 
     <div class="featured-section" id="featured-section" style="display: none;">
-      <h2 class="featured-header">Featured Collection</h2>
+      <h2 class="featured-header" data-i18n="featuredCollection">Featured Collection</h2>
       <div class="featured-grid" id="featured-grid"></div>
     </div>
 
     <div class="grid" id="catalog-grid">
       <div class="empty-state">
         <div class="empty-state-icon">✨</div>
-        <div class="empty-state-text">Loading Exclusive Collection...</div>
+        <div class="empty-state-text" data-i18n="loadingMessage">Loading Exclusive Collection...</div>
       </div>
     </div>
   </div>
@@ -329,8 +336,8 @@
   <div id="ar-stage">
     <div class="stage-header">
       <div>
-        <div class="stage-title" id="stage-title">3D Fabric Preview</div>
-        <p class="stage-subtitle">Visualize in your space</p>
+        <div class="stage-title" id="stage-title" data-i18n="arPreviewTitle">3D Fabric Preview</div>
+        <p class="stage-subtitle" data-i18n="arPreviewSubtitle">Visualize in your space</p>
       </div>
       <button class="close-stage" onclick="dismissAR()">✕</button>
     </div>
@@ -338,12 +345,124 @@
     <model-viewer id="main-viewer" src="" ar ar-modes="webxr scene-viewer quick-look" camera-controls touch-action="pan-y" auto-rotate shadow-intensity="1.5" exposure="1.2"></model-viewer>
 
     <div class="ar-controls">
-      <button class="btn-native-ar" onclick="triggerNativeAR()"><span>📍</span> Place in Room</button>
-      <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.5px;">True 1:1 Scale Preview</span>
+      <button class="btn-native-ar" data-i18n="placeInRoom"><span>📍</span> Place in Room</button>
+      <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.5px;" data-i18n="trueScale">True 1:1 Scale Preview</span>
     </div>
   </div>
 
   <script>
+    const translations = {
+      en: {
+        brandName: 'ZAMAAN',
+        collectionBadge: 'TEXTILE COLLECTION',
+        liveCatalog: 'Live Catalog',
+        heroTitle: 'Curated Elegance',
+        heroSubtitle: 'Discover premium fabrics designed for refined interiors and statement spaces.',
+        browseCollection: 'Browse Collection',
+        exploreCategories: 'Explore Categories',
+        stylesLabel: 'Styles',
+        responseLabel: 'Response',
+        previewLabel: 'Preview',
+        luxuryFinish: 'Luxury Finish',
+        luxuryFinishText: 'Textured, elevated collections',
+        readyStock: 'Ready Stock',
+        readyStockText: 'Instant availability updates',
+        arPreview: 'AR Preview',
+        arPreviewText: 'See fabric in your space',
+        allFabrics: 'All Fabrics',
+        searchPlaceholder: 'Search by catalogue, code, colour or category...',
+        featuredCollection: 'Featured Collection',
+        loadingMessage: 'Loading Exclusive Collection...',
+        arPreviewTitle: '3D Fabric Preview',
+        arPreviewSubtitle: 'Visualize in your space',
+        placeInRoom: 'Place in Room',
+        trueScale: 'True 1:1 Scale Preview',
+        inStock: 'In Stock',
+        lowStock: 'Low Stock',
+        soldOut: 'Sold Out',
+        reserve: 'Reserve',
+        threeDView: '3D View',
+        noItems: 'No items found. Please refine your search.',
+        toggleLang: 'AR',
+        toggleLangAria: 'Switch to Arabic',
+      },
+      ar: {
+        brandName: 'زمان',
+        collectionBadge: 'مجموعة النسيج',
+        liveCatalog: 'الكatalog المباشر',
+        heroTitle: 'أناقة مختارة',
+        heroSubtitle: 'اكتشف أقمشة فاخرة مصممة للداخلية العصرية والمساحات المميزة.',
+        browseCollection: 'تصفح المجموعة',
+        exploreCategories: 'استكشف الفئات',
+        stylesLabel: 'الأنماط',
+        responseLabel: 'الاستجابة',
+        previewLabel: 'المعاينة',
+        luxuryFinish: 'تشطيب فاخر',
+        luxuryFinishText: 'مجموعات ذات ملمس وارتفاع',
+        readyStock: 'مخزون جاهز',
+        readyStockText: 'تحديثات فورية عن التوفر',
+        arPreview: 'عرض AR',
+        arPreviewText: 'شاهد القماش في مساحتك',
+        allFabrics: 'كل الأقمشة',
+        searchPlaceholder: 'ابحث حسب الكتالوج أو الرمز أو اللون أو الفئة...',
+        featuredCollection: 'المجموعة المختارة',
+        loadingMessage: 'جارٍ تحميل المجموعة المميزة...',
+        arPreviewTitle: 'معاينة ثلاثية الأبعاد',
+        arPreviewSubtitle: 'تخيلها في مساحتك',
+        placeInRoom: 'ضعها في الغرفة',
+        trueScale: 'معاينة بالحجم الحقيقي',
+        inStock: 'متوفر',
+        lowStock: 'مخزون منخفض',
+        soldOut: 'غير متوفر',
+        reserve: 'احجز',
+        threeDView: 'عرض 3D',
+        noItems: 'لم يتم العثور على عناصر. يرجى تعديل البحث.',
+        toggleLang: 'EN',
+        toggleLangAria: 'التبديل إلى الإنجليزية',
+      }
+    };
+
+    let currentLang = 'en';
+
+    function getText(key) {
+      return translations[currentLang]?.[key] || translations.en[key] || key;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelectorAll('[data-i18n]').forEach((element) => {
+        const key = element.dataset.i18n;
+        const value = translations[lang]?.[key] || translations.en[key];
+        if (!value) return;
+        if (element.tagName === 'INPUT') {
+          element.placeholder = value;
+        } else {
+          element.textContent = value;
+        }
+      });
+
+      const toggleButton = document.getElementById('lang-toggle');
+      if (toggleButton) {
+        toggleButton.textContent = getText('toggleLang');
+        toggleButton.setAttribute('aria-label', getText('toggleLangAria'));
+      }
+
+      const searchInput = document.getElementById('search');
+      if (searchInput) {
+        searchInput.placeholder = getText('searchPlaceholder');
+      }
+
+      if (fullDataset && fullDataset.length) {
+        drawCards(fullDataset);
+      }
+    }
+
+    function toggleLanguage() {
+      setLanguage(currentLang === 'en' ? 'ar' : 'en');
+    }
+
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(name => caches.delete(name)));
     }
@@ -471,7 +590,7 @@
         container.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">✦</div>
-            <div class="empty-state-text">No items found. Please refine your search.</div>
+            <div class="empty-state-text">${getText('noItems')}</div>
           </div>
         `;
         return;
@@ -479,12 +598,12 @@
 
       container.innerHTML = filtered.map((item, idx) => {
         const stock = parseInt(item.StockMeters || '0', 10);
-        let badgeHtml = `<div class="stock-badge badge-in"><span class="pulse-dot"></span>In Stock</div>`;
-        if (stock <= 0) badgeHtml = `<div class="stock-badge badge-out"><span class="pulse-dot"></span>Sold Out</div>`;
-        else if (stock < 30) badgeHtml = `<div class="stock-badge badge-low"><span class="pulse-dot"></span>Low Stock</div>`;
+        let badgeHtml = `<div class="stock-badge badge-in"><span class="pulse-dot"></span>${getText('inStock')}</div>`;
+        if (stock <= 0) badgeHtml = `<div class="stock-badge badge-out"><span class="pulse-dot"></span>${getText('soldOut')}</div>`;
+        else if (stock < 30) badgeHtml = `<div class="stock-badge badge-low"><span class="pulse-dot"></span>${getText('lowStock')}</div>`;
 
-        const waUrl = `https://wa.me/${CONFIG.wholesalerPhone}?text=${encodeURIComponent(`Hello, I am interested in fabric #${item.ColorCode} "${item.ColorName}" (Catalogue: ${item.CatalogueNumber || 'N/A'})`)} `;
-        const btn3d = item.Model3D ? `<button class="btn btn-3d" onclick="openAR('${item.Model3D}', '#${item.ColorCode}', '${item.ColorName}')">🎨 3D View</button>` : '';
+        const waUrl = `https://wa.me/${CONFIG.wholesalerPhone}?text=${encodeURIComponent(`Hello, I am interested in fabric #${item.ColorCode} "${item.ColorName}" (Catalogue: ${item.CatalogueNumber || 'N/A'})`)}`;
+        const btn3d = item.Model3D ? `<button class="btn btn-3d" onclick="openAR('${item.Model3D}', '#${item.ColorCode}', '${item.ColorName}')">${getText('threeDView')}</button>` : '';
 
         return `
           <div class="fabric-card" style="animation: staggerIn 0.6s ease-out forwards; animation-delay: ${idx * 0.04}s;">
@@ -502,11 +621,11 @@
               <div class="fabric-specs">
                 <span class="specs-item">${item.Width || 'Custom width'}</span>
                 <span class="specs-item">${item.Category || 'Fabric'}</span>
-                ${stock > 0 ? `<span class="specs-item">${stock}m Available</span>` : ''}
+                ${stock > 0 ? `<span class="specs-item">${stock}m ${getText('inStock')}</span>` : ''}
               </div>
               <div class="actions">
                 ${btn3d}
-                <a class="btn btn-reserve" href="${waUrl}" target="_blank">${whatsappIcon} Reserve</a>
+                <a class="btn btn-reserve" href="${waUrl}" target="_blank">${whatsappIcon}${getText('reserve')}</a>
               </div>
             </div>
           </div>
@@ -537,8 +656,16 @@
       document.body.style.overflow = 'auto';
     }
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadCatalog);
-    else loadCatalog();
+    document.getElementById('lang-toggle')?.addEventListener('click', toggleLanguage);
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+      loadCatalog();
+    });
+    else {
+      setLanguage(currentLang);
+      loadCatalog();
+    }
 
     setInterval(() => loadCatalog(), 5 * 60 * 1000);
   </script>
