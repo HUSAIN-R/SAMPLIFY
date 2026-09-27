@@ -10,8 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
-  <!-- Google Model Viewer (WebXR AR Engine) & PapaParse (CSV Reader) -->
+  <!-- Google Model Viewer (WebXR AR Engine) -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <!-- PapaParse for CSV parsing -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
@@ -338,9 +339,8 @@
     </div>
 
     <div class="grid" id="catalog-grid">
-      <!-- Fallback Skeleton while loading -->
       <div style="text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 0.9rem;">
-        Syncing inventory from central warehouse...
+        Loading catalog...
       </div>
     </div>
   </div>
@@ -378,9 +378,7 @@
   </div>
 
   <script>
-    // -------------------------------------------------------------
-    // CLIENT CONFIGURATION
-    // -------------------------------------------------------------
+    // Config
     const CONFIG = {
       wholesalerPhone: "96569692799",
       sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vR8yTWkMPCD5eyfZNbxbs1wWtfA0EfCGpENfUPIbG8Ij7HMaI6TBtupKIRBaOg1D_oNxEOnNxCgb0ZP/pub?output=csv",
@@ -389,6 +387,7 @@
 
     let fullDataset = [];
 
+    // Demo data fallback
     const DEMO_DATA = [
       {
         ColorCode: "1540",
@@ -419,23 +418,33 @@
       }
     ];
 
-    async function initCatalog() {
-      if (!CONFIG.sheetCsvUrl || CONFIG.sheetCsvUrl.includes("YOUR_GOOGLE_SHEET")) {
+    function loadCatalog() {
+      const freshCsvUrl = CONFIG.sheetCsvUrl + (CONFIG.sheetCsvUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+
+      if (typeof Papa === 'undefined') {
+        console.error("PapaParse library not loaded");
         fullDataset = DEMO_DATA;
         drawCards(fullDataset);
         return;
       }
 
-      const freshCsvUrl = CONFIG.sheetCsvUrl + (CONFIG.sheetCsvUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
-
       Papa.parse(freshCsvUrl, {
         download: true,
         header: true,
-        complete: function(res) {
-          fullDataset = res.data.filter(r => r && r.ColorCode);
+        skipEmptyLines: true,
+        complete: function(result) {
+          if (result && result.data && result.data.length > 0) {
+            fullDataset = result.data.filter(row => row.ColorCode && String(row.ColorCode).trim());
+          }
+          
+          if (fullDataset.length === 0) {
+            fullDataset = DEMO_DATA;
+          }
+          
           drawCards(fullDataset);
         },
-        error: function() {
+        error: function(err) {
+          console.error("CSV Error:", err);
           fullDataset = DEMO_DATA;
           drawCards(fullDataset);
         }
@@ -444,32 +453,33 @@
 
     function drawCards(items) {
       const container = document.getElementById("catalog-grid");
+      
       if (!items || items.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:50px 0; color:var(--text-muted);">No matching colorways found.</div>`;
+        container.innerHTML = '<div style="text-align:center; padding:50px 0; color:var(--text-muted);">No items found</div>';
         return;
       }
 
       container.innerHTML = items.map(item => {
         const stock = parseInt(item.StockMeters || "0", 10);
-        let badgeHtml = `<div class="badge badge-in"><span class="pulse"></span>${stock}m Available</div>`;
+        
+        let badgeHtml = '';
         if (stock <= 0) {
-          badgeHtml = `<div class="badge badge-out"><span class="pulse"></span>Sold Out</div>`;
+          badgeHtml = '<div class="badge badge-out"><span class="pulse"></span>Sold Out</div>';
         } else if (stock < 30) {
-          badgeHtml = `<div class="badge badge-low"><span class="pulse"></span>Low: ${stock}m Left</div>`;
+          badgeHtml = `<div class="badge badge-low"><span class="pulse"></span>Low: ${stock}m</div>`;
+        } else {
+          badgeHtml = `<div class="badge badge-in"><span class="pulse"></span>${stock}m</div>`;
         }
 
-        const encodedMsg = encodeURIComponent(
-          `Salam, reserving from physical catalog [${CONFIG.catalogName}]:\n` +
-          `• Color Code: #${item.ColorCode} (${item.ColorName || 'Standard'})\n` +
-          `• Required Length: 25 Meters\n` +
-          `Please confirm availability & delivery timeline.`
-        );
-        const waUrl = `https://wa.me/${CONFIG.wholesalerPhone}?text=${encodedMsg}`;
+        const msg = `Salam, I'm interested in #${item.ColorCode} (${item.ColorName}) from ${CONFIG.catalogName}. Please send details.`;
+        const waUrl = `https://wa.me/${CONFIG.wholesalerPhone}?text=${encodeURIComponent(msg)}`;
+
+        const btn3d = item.Model3D ? `<button class="btn btn-3d" onclick="openAR('${item.Model3D}', '#${item.ColorCode}')">3D</button>` : '';
 
         return `
           <div class="fabric-card">
             <div class="thumb-wrapper">
-              <img src="${item.ImageURL || 'https://via.placeholder.com/200'}" alt="Color #${item.ColorCode}" loading="lazy" />
+              <img src="${item.ImageURL || 'https://via.placeholder.com/105'}" alt="${item.ColorCode}" />
             </div>
             <div class="card-content">
               <div>
@@ -477,10 +487,10 @@
                   <span class="color-code">#${item.ColorCode}</span>
                   ${badgeHtml}
                 </div>
-                <div class="fabric-specs">${item.ColorName || 'Solid'} • ${item.Width || '142cm'} • ${item.Category || 'Fabric'}</div>
+                <div class="fabric-specs">${item.ColorName} • ${item.Width} • ${item.Category}</div>
               </div>
               <div class="actions">
-                ${item.Model3D ? `<button class="btn btn-3d" onclick="openAR('${item.Model3D}', '#${item.ColorCode} -${item.ColorName}')">3D Room</button>` : ''}
+                ${btn3d}
                 <a class="btn btn-reserve" href="${waUrl}" target="_blank">Reserve</a>
               </div>
             </div>
@@ -491,41 +501,42 @@
 
     function filterCatalog() {
       const val = document.getElementById("search").value.toLowerCase();
-      const hits = fullDataset.filter(item => 
+      const filtered = fullDataset.filter(item => 
         (item.ColorCode && item.ColorCode.toLowerCase().includes(val)) ||
         (item.ColorName && item.ColorName.toLowerCase().includes(val)) ||
         (item.Category && item.Category.toLowerCase().includes(val))
       );
-      drawCards(hits);
+      drawCards(filtered);
     }
 
-    function openAR(modelUrl, title) {
-      const modal = document.getElementById("ar-stage");
-      const viewer = document.getElementById("main-viewer");
-      document.getElementById("stage-title").innerText = title;
-      viewer.src = modelUrl;
-      modal.style.display = "flex";
+    function openAR(url, code) {
+      document.getElementById("main-viewer").src = url;
+      document.getElementById("stage-title").innerText = `Viewing ${code}`;
+      document.getElementById("ar-stage").style.display = "flex";
       document.body.style.overflow = "hidden";
     }
 
     function triggerNativeAR() {
       const viewer = document.getElementById("main-viewer");
-      if (viewer.canActivateAR) {
-        viewer.activateAR();
-      } else {
-        alert("AR is supported on Safari (iOS 12+) and Chrome (Android with ARCore).");
-      }
+      if (viewer.canActivateAR) viewer.activateAR();
+      else alert("AR not supported on this device");
     }
 
     function dismissAR() {
-      const modal = document.getElementById("ar-stage");
-      const viewer = document.getElementById("main-viewer");
-      modal.style.display = "none";
-      viewer.src = "";
+      document.getElementById("ar-stage").style.display = "none";
+      document.getElementById("main-viewer").src = "";
       document.body.style.overflow = "auto";
     }
 
-    window.addEventListener("DOMContentLoaded", initCatalog);
+    // Load on page ready
+    document.addEventListener("DOMContentLoaded", loadCatalog);
+    
+    // Fallback in case DOMContentLoaded fires before this script
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", loadCatalog);
+    } else {
+      loadCatalog();
+    }
   </script>
 </body>
 </html>
