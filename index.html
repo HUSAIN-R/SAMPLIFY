@@ -428,9 +428,21 @@
         return;
       }
 
-      Papa.parse(CONFIG.sheetCsvUrl, {
-        download: true,
-        header: true,
+      // Appends a unique timestamp so the browser never serves a cached copy
+const freshCsvUrl = CONFIG.sheetCsvUrl + (CONFIG.sheetCsvUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+
+Papa.parse(freshCsvUrl, {
+  download: true,
+  header: true,
+  complete: function(res) {
+    fullDataset = res.data.filter(r => r.ColorCode);
+    drawCards(fullDataset);
+  },
+  error: function() {
+    drawCards(DEMO_DATA);
+  }
+});
+
         complete: function(res) {
           fullDataset = res.data.filter(r => r.ColorCode);
           drawCards(fullDataset);
