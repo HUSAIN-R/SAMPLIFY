@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAMPLIFY</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121a2b;
+        --primary: #7c9cff;
+        --accent: #38d39f;
+        --text: #e5ecff;
+        --muted: #a6b6d9;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, var(--bg), #101827);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .container {
+        max-width: 900px;
+        width: 100%;
+        background: rgba(18, 26, 43, 0.9);
+        border: 1px solid rgba(124, 156, 255, 0.25);
+        border-radius: 18px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        padding: 48px 32px;
+      }
+
+      .badge {
+        display: inline-block;
+        background: rgba(124, 156, 255, 0.12);
+        color: var(--primary);
+        border: 1px solid rgba(124, 156, 255, 0.3);
+        border-radius: 999px;
+        padding: 8px 16px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        margin: 0 0 16px;
+      }
+
+      p {
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.7;
+        margin: 0 0 28px;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-block;
+        text-decoration: none;
+        padding: 14px 22px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), #5b73f5);
+        color: white;
+      }
+
+      .btn-secondary {
+        background: rgba(56, 211, 159, 0.12);
+        color: var(--accent);
+        border: 1px solid rgba(56, 211, 159, 0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <div class="badge">SAMPLIFY</div>
+      <h1>Revolutionizing the Fabric Industry</h1>
+      <p>
+        SAMPLIFY brings innovative digital solutions to the textile world—combining
+        smarter workflows, data-driven insights, and modern experiences for a more
+        efficient future in fabric production and commerce.
+      </p>
+      <div class="cta-row">
+        <a href="#" class="btn btn-primary">Get Started</a>
+        <a href="#" class="btn btn-secondary">Learn More</a>
+      </div>
+    </main>
+  </body>
+</html>
