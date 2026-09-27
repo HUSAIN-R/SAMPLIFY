@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SAMPLIFY — 3D + AR Viewer (iOS Quick Look + Android)</title>
+
+  <!-- model-viewer (official) -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, Arial, sans-serif; padding: 16px; }
+    model-viewer { width: 100%; max-width: 900px; height: 70vh; background: #f3f3f3; margin: 0 auto; display: block; }
+    .controls { text-align: center; margin-top: 12px; }
+    button { font-size: 16px; padding: 8px 14px; }
+    .note { max-width: 900px; margin: 14px auto; color: #333; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>3D Model + AR (iOS Quick Look + Android Scene Viewer)</h1>
+
+  <!--
+    This page attempts to load the GLB that exists in the repository root.
+    If you want GitHub Pages to serve this as a stable public URL, enable Pages
+    and serve from the default branch (or put this file under /docs/ and enable Pages).
+
+    IMPORTANT: for iOS AR (Quick Look) you MUST provide a USDZ file at ios-src.
+    Convert the GLB to USDZ (see AR_SETUP.md) and add it to the repo next to the GLB.
+  -->
+
+  <model-viewer id="mv"
+      src="https://raw.githubusercontent.com/HUSAIN-R/SAMPLIFY/main/Ellipse-Armchair-E74-2021-Corona-fbx%5B1%5D.glb"
+      ios-src="https://raw.githubusercontent.com/HUSAIN-R/SAMPLIFY/main/Ellipse-Armchair-E74-2021-Corona-fbx%5B1%5D.usdz"
+      alt="Ellipse Armchair"
+      camera-controls
+      auto-rotate
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      shadow-intensity="1"
+      exposure="1"
+      style="border-radius:8px;">
+  </model-viewer>
+
+  <div class="controls">
+    <button id="open-ar">Open in AR</button>
+  </div>
+
+  <div class="note">
+    <p>Notes:</p>
+    <ol>
+      <li>The GLB is loaded from the repository's raw URL above. Some browsers/platforms may block cross-origin requests; if the model doesn't load, host the files via GitHub Pages, S3, Netlify, or Vercel.</li>
+      <li>iOS Safari requires a USDZ file for Quick Look — place a USDZ with the same base name next to the GLB (example: <code>Ellipse-Armchair-E74-2021-Corona-fbx[1].usdz</code>).</li>
+      <li>Visit this page from an iPhone (Safari) and tap the <em>Open in AR</em> button — Quick Look will ask for camera access. On Android, Scene Viewer or WebXR will be used where available.</li>
+    </ol>
+  </div>
+
+  <script>
+    const mv = document.getElementById('mv');
+    const openAR = document.getElementById('open-ar');
+
+    openAR.addEventListener('click', async () => {
+      try {
+        const arBtn = mv.shadowRoot && (mv.shadowRoot.querySelector('button[slot="ar-button"]') || mv.shadowRoot.querySelector('button[aria-label="AR"]') || mv.shadowRoot.querySelector('button[title*="AR"]'));
+        if (arBtn) {
+          arBtn.click();
+        } else {
+          // Fallback: call enterAR if present
+          if (typeof mv.enterAR === 'function') {
+            mv.enterAR();
+          } else {
+            mv.focus();
+          }
+        }
+      } catch (err) {
+        console.warn('Could not trigger AR button programmatically — please tap the AR button on the viewer.', err);
+      }
+    });
+  </script>
+</body>
+</html>
